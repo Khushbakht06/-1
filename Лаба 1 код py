@@ -3,53 +3,52 @@
 #Вариант 10.
 #Натуральные числа. Выводит на экран нечетные числа, меняя порядок цифр в них на обратный. Полиндромы (значения не меняется от смены цифр) - выводятся прописью.
 
-# Создаем словарь для преобразования чисел в слова
-numbers = {
-    '0': 'ноль',
-    '1': 'один',
-    '2': 'два',
-    '3': 'три',
-    '4': 'четыре',
-    '5': 'пять',
-    '6': 'шесть',
-    '7': 'семь',
-    '8': 'восемь',
-    '9': 'девять'
-}
+def is_palindrome(num_str):
+    return num_str == num_str[::-1]
 
-# Функция для инвертирования числа
-def invert_number(number):
-    return int(str(number)[::-1])
+def number_to_words(num_str):
+    num_words = {
+        '0': 'ноль', '1': 'один', '2': 'два', '3': 'три', '4': 'четыре',
+        '5': 'пять', '6': 'шесть', '7': 'семь', '8': 'восемь', '9': 'девять'
+    }
+    return ' '.join(num_words[digit] for digit in num_str)
 
-# Функция для проверки на палиндром
-def is_palindrome(number):
-    return str(number) == str(number)[::-1]
+def process_number(num_str):
+    if is_palindrome(num_str):
+        return number_to_words(num_str)
+    else:
+        return num_str[::-1]
 
-# Создаем файл example.txt и записываем в него данные
-with open('example.txt', 'w', encoding='utf-8') as f:
-    f.write('1234567890')
+def is_odd(num_str):
+    return int(num_str) % 2 != 0
 
-# Считываем цифру, с которой должны начинаться четные числа
-start_digit = input("Введите цифру (от 0 до 9): ")
+def process_lexeme(lexeme):
+    if lexeme.isdigit() and int(lexeme) > 0:  # Natural numbers
+        if is_odd(lexeme):
+            return process_number(lexeme)
+    return lexeme  # Return the original lexeme if it's not a natural number
 
-# Главный цикл программы, эмулирующий чтение данных из файла
-count = 0
-file_path = 'example.txt'
+def read_file_in_blocks(file_path, block_size=1024):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        while True:
+            block = file.read(block_size)
+            if not block:
+                break
+            yield block
 
-with open(file_path, 'r', encoding='utf-8') as file:
-    for line in file:
-        line = ''.join(char if char.isdigit() else ' ' for char in line)
-        numbers_list = line.split()
-        
-        for number_str in numbers_list:
-            number = int(number_str)
-            if str(number).startswith(start_digit) and number % 2 != 0:  # Проверка на нечетность
-                count += 1
-                if is_palindrome(number):
-                    print(numbers[str(number_str)], end=' ')
-                else:
-                    print(invert_number(number), end=' ')
-                if count % 5 == 0:
-                    print("\nПрописью:")
-                else:
-                    print()
+def process_file(file_path):
+    buffer = ""
+    for block in read_file_in_blocks(file_path):
+        buffer += block
+        while ' ' in buffer:
+            space_index = buffer.index(' ')
+            lexeme = buffer[:space_index]
+            buffer = buffer[space_index + 1:]
+            print(process_lexeme(lexeme), end=' ')
+    if buffer:  # Process remaining part of the buffer
+        print(process_lexeme(buffer), end=' ')
+
+# Example usage::
+file_path = 'C:/student/2 сем/1 lab.py/input.txt'
+process_file(file_path)
+
